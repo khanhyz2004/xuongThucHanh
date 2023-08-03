@@ -25,3 +25,30 @@ begin
 	end
 
 end
+--Tạo view xuất ra các sản phẩm tồn kho và số lượng của chúng <group by maKho>
+
+CREATE VIEW ViewSanPhamTonKho AS
+SELECT makho AS MaKho, masp AS MaSP, soluongtonkho AS SoLuongTonKho
+FROM SanPhamTonKho
+GROUP BY makho, masp, soluongtonkho;
+ select * from ViewSanPhamTonKho
+
+
+--Tạo view doanh thu công ty = tổng tất cả đơn xh – tổng tất cả đơn nhập hàng
+CREATE VIEW ViewDoanhThuCongTy AS
+SELECT 
+    ISNULL(SUM(XHCT.SoLuongSp * SP.DonGia), 0) - ISNULL(SUM(NHCT.SoLuongNhap * SP.DonGia), 0) AS DoanhThu
+FROM 
+(
+    SELECT maDXH, maSPtonKho, SoLuongSp
+    FROM XuatHangChiTiet
+) AS XHCT
+LEFT JOIN SanPhamTonKho ON XHCT.maSPtonKho = SanPhamTonKho.maSPtonKho
+LEFT JOIN SanPham AS SP ON XHCT.maSPtonKho = SP.MaSP
+LEFT JOIN (
+    SELECT maDNH, maSP, SoLuongNhap
+    FROM NhapHangChiTiet
+) AS NHCT ON XHCT.maSPtonKho = NHCT.maSP;
+
+SELECT * FROM ViewDoanhThuCongTy
+
